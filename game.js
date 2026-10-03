@@ -6,8 +6,6 @@ const W = 800;
 const H = 600;
 
 // ── Input ─────────────────────────────────────────────────────────────────────
-const keys = {};
-const justPressed = {};
 
 window.addEventListener('keydown', e => {
   justPressed[e.code] = !keys[e.code];
@@ -62,6 +60,33 @@ const RADII  = [0, 16, 30, 50];   // por tamaño 1, 2, 3
 const SPEEDS = [0, 85, 55, 32];   // velocidad base por tamaño
 const POINTS = [0, 100, 50, 20];  // puntos por tamaño
 
+// Variante fija de asteroide grande (vértices normalizados a radio ~1)
+const BIG_SHAPE = [
+  [-0.115, -1.000], [0.439, -0.835], [0.338, -0.223], [0.914, -0.050],
+  [0.748,  0.576], [0.245,  0.554], [0.007,  0.950], [-0.698,  0.612],
+  [-1.022, 0.029], [-0.871, -0.597],
+];
+const BIG_SHAPE_CHANCE = 0.25;
+
+// Variante corazón (curva paramétrica), centrada y normalizada a radio 1
+const HEART_SHAPE = (() => {
+  const pts = [];
+  const n = 20;
+  for (let i = 0; i < n; i++) {
+    const t = (i / n) * Math.PI * 2;
+    pts.push([
+      16 * Math.sin(t) ** 3,
+      -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)),
+    ]);
+  }
+  const ys = pts.map(p => p[1]);
+  const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const centered = pts.map(([x, y]) => [x, y - cy]);
+  const max = Math.max(...centered.map(([x, y]) => Math.hypot(x, y)));
+  return centered.map(([x, y]) => [x / max, y / max]);
+})();
+const HEART_CHANCE = 0.25;
+
 class Asteroid {
   constructor(x, y, size = 3) {
     this.x    = x;
@@ -77,13 +102,20 @@ class Asteroid {
     this.rotSpeed = rand(-1.2, 1.2);
     this.rot = rand(0, Math.PI * 2);
 
-    // Polígono irregular
-    const n = randInt(8, 13);
-    this.verts = [];
-    for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2;
-      const r = this.radius * rand(0.6, 1.0);
-      this.verts.push([Math.cos(a) * r, Math.sin(a) * r]);
+    const roll = Math.random();
+    if (roll < HEART_CHANCE) {
+      this.verts = HEART_SHAPE.map(([x, y]) => [x * this.radius, y * this.radius]);
+    } else if (size === 3 && roll < HEART_CHANCE + BIG_SHAPE_CHANCE) {
+      this.verts = BIG_SHAPE.map(([x, y]) => [x * this.radius, y * this.radius]);
+    } else {
+      // Polígono irregular
+      const n = randInt(8, 13);
+      this.verts = [];
+      for (let i = 0; i < n; i++) {
+        const a = (i / n) * Math.PI * 2;
+        const r = this.radius * rand(0.6, 1.0);
+        this.verts.push([Math.cos(a) * r, Math.sin(a) * r]);
+      }
     }
   }
 
