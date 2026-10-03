@@ -28,6 +28,8 @@ Detalles que cruzan varias partes:
 - Al limpiar todos los asteroides, `nextLevel()` genera `3 + level` asteroides grandes fuera de un radio seguro de 130 px del centro.
 - Los textos de UI están en español.
 
+- **Power-up triple disparo**: cada nivel sortea (`powerupCountdown`, 1..`POWERUP_MAX_KILLS`) en qué destrucción de asteroide se suelta un `PowerUp` (ítem recogible, `POWERUP_LIFETIME` s): exactamente una vez por nivel, garantizado. El sorteo se rehace en `initGame()` y `nextLevel()`. Al recogerlo, `tripleTimer = POWERUP_DURATION` y `Ship.tryShoot(true)` dispara 3 balas separadas por `SPREAD`. Morir pone `tripleTimer = 0`.
+
 ## Notas
 
-- El `README.md` aún menciona power-ups y "estrella fugaz", pero fueron eliminados del código (commit `13e713f`); no están implementados.
+- El `README.md` aún menciona power-ups variados y "estrella fugaz", pero fueron eliminados del código (commit `13e713f`); solo existe el triple disparo.
