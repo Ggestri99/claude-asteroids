@@ -28,7 +28,7 @@ Detalles que cruzan varias partes:
 - Al limpiar todos los asteroides, `nextLevel()` genera `3 + level` asteroides grandes fuera de un radio seguro de 130 px del centro.
 - Los textos de UI están en español.
 
-- **Power-up triple disparo**: cada nivel sortea (`powerupCountdown`, 1..`POWERUP_MAX_KILLS`) en qué destrucción de asteroide se suelta un `PowerUp` (ítem recogible, `POWERUP_LIFETIME` s): exactamente una vez por nivel, garantizado. El sorteo se rehace en `initGame()` y `nextLevel()`. Al recogerlo, `tripleTimer = POWERUP_DURATION` y `Ship.tryShoot(true)` dispara 3 balas separadas por `SPREAD`. Morir pone `tripleTimer = 0`.
+- **Power-ups** (`POWERUP_TYPES`, tabla con letra, color, duración, `start`/`every`): triple (T, cada nivel), escudo (E, niveles 2,4,6…), slow (S, 3,6,9…), hiper (H, 4,7,10…), nova (N, 5,10…). `planDrops()` se llama en `initGame()` y `nextLevel()` y sortea en qué destrucción (1..`POWERUP_MAX_KILLS`) cae cada ítem del nivel (garantizado). Los efectos temporales viven en `fx` (timers en segundos, se apilan; recoger otra vez reinicia el timer); la nova se guarda en `novaStock` y se usa con `B` (`useNova()` destruye todos los asteroides sin split). El escudo absorbe un golpe y da 1 s de invencibilidad; slow multiplica el `dt` de los asteroides por `SLOW_FACTOR`; hiper multiplica empuje y giro de `Ship.update`. Morir llama `clearEffects()` (conserva `novaStock`). Audio con WebAudio (`beep`), el contexto se crea en el primer `keydown`. UI: barras por efecto en `drawHUD()`, escudo/aviso/flash en `drawEffects()`.
 
 ## Notas
 
